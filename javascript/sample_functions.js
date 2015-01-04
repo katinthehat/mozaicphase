@@ -5,25 +5,22 @@ function getRandomInt(min, max) {
 }
 
 function pickColor() {
-    var colorOptions = [
-       '#FF0066',
-       '#99FFFF',
-       '#66FF33',
-       '#FFFF00',
-       '#990066',
-       '#9980FE',
-     ];
-    var colorNumber = getRandomInt(0, 6);
-    return colorOptions[colorNumber];
+  var colorOptions = [
+     '#FF0066',
+     '#99FFFF',
+     '#66FF33',
+     '#FFFF00',
+     '#990066',
+     '#9980FE',
+   ];
+  var colorNumber = getRandomInt(0, 6);
+  return colorOptions[colorNumber];
 }
 
 function createSquareTemplate() {
   var square = $("<div></div>");
   var chosenColor = pickColor();
-  var displayOptions = ['block', 'inline-block', 'inline-block', 'inline-block'];
-  var optionNumber = getRandomInt(0, 4);
-  var displayOption = displayOptions[optionNumber];
-  console.log(displayOption);
+  var displayOption = 'inline-block';
   square.css('display', displayOption);
   square.css('width', 10);
   square.css('height', 10);
@@ -35,29 +32,50 @@ function createSquareTemplate() {
   return square;
 }
 
-function addSquareToBucket(target, squareTemplate) {
-    $(target).append(squareTemplate);
+function createRowTemplate() {
+  var row = $("<div></div>");
+  var rowId = getRandomInt(1, 1000000000) + "_row";
+  row.attr('id', rowId);
+  return row;
 }
 
-var recursiveCount = 0;
-function appendToBucketRecursive(target, limit) {
-    setTimeout(function() {
-        var squareTemplate = createSquareTemplate();
-        addSquareToBucket(target, squareTemplate);
-        
-        recursiveCount++;
-        if(recursiveCount < limit) {
-            appendToBucketRecursive(target, limit);
-        }
-    }, 50)
+function addTemplateToTarget(target, template) {
+  $(target).append(template);
 }
 
-function appendAllToBucket(target, limit) {
-    for (var c = 0; c < limit; c++) {
-        var squareTemplate = createSquareTemplate();
-        addSquareToBucket(target, squareTemplate);
+var rowCount = 0;
+var colCount = 0;
+function appendToBucketRecursive(target, maxRows, maxCols, rowTemplate) {
+  setTimeout(function() {
+
+    var rowIdTarget = '#' + rowTemplate.attr('id');
+
+    if(colCount == maxCols) {
+      colCount = 0;
+      var row = createRowTemplate();
+      rowTemplate = row;
+      rowIdTarget = '#' + row.attr('id');
+      rowCount++;
     }
+
+    if(rowCount < maxRows) {
+
+      if(!$(rowIdTarget).length){
+        addTemplateToTarget(target, rowTemplate);
+      }
+
+      var squareTemplate = createSquareTemplate();
+      addTemplateToTarget(rowIdTarget, squareTemplate);
+
+      appendToBucketRecursive(target, maxRows, maxCols, rowTemplate);
+    }
+
+    colCount++;
+  }, 25);
 }
 
-appendToBucketRecursive('#main_bucket', 300);
+var r = createRowTemplate();
+var maxRows = 30;
+var maxCols = 30;
+appendToBucketRecursive('#main_bucket', maxRows, maxCols, r);
 
